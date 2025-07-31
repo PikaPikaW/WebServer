@@ -1,0 +1,49 @@
+#!/bin/sh
+set -euo pipefail  # 启用严格模式
+
+CONF_FILE="/etc/my.cnf.d/mariadb-server.cnf"
+
+echo "🔧 检查MariaDB网络配置..."
+
+# 检查必要命令是否存在
+for cmd in grep sed mysql_install_db; do
+    command -v "$cmd" >/dev/null 2>&1 || {
+        echo "❌ 命令未找到: $cmd"
+        exit 127
+    }
+done
+
+# 检查配置文件
+if [ ! -f "$CONF_FILE" ]; then
+    echo "❌ 配置文件不存在: $CONF_FILE" >&2
+    exit 1
+fi
+
+# 处理skip-networking
+if grep -q "^skip-networking" "$CONF_FILE"; then
+    if ! sed -i.bak 's/^skip-networking/#skip-networking/' "$CONF_FILE"; then
+        echo "⚠️ 修改skip-networking失败" >&2
+    else
+        echo "✅ 已禁用 skip-networking"
+        rm -f "${CONF_FILE}.bak"
+    fi
+fi
+
+# 确保绑定地址
+if ! grep -q "^bind-address" "$CONF_FILE"; then
+    if ! sed -i '/\[mysqld\]/a bind-address=0.0.0.0' "$CONF_FILE" 2>/dev/null; then
+        echo "⚠️ 添加bind-address失败，请确保[mysqld]部分存在" >&2
+    fi
+fi
+
+# 初始化数据库
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    echo "🔄 初始化MariaDB数据库..."
+    if ! mysql_install_db --user=mysql --datadir=/var/lib/mysql; then
+        echo "❌ 数据库初始化失败" >&2
+        exit 1
+    fi
+fi
+
+echo "🎉 配置完成"
+exit 0

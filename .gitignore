@@ -6,6 +6,8 @@
 !LICENSE
 !makefile
 !Makefile
+!/docker/
+!/docker/**
 
 *.o
 *.1

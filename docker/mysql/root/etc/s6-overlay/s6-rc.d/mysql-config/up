@@ -1,0 +1,3 @@
+#!/bin/execlineb -P
+
+/bin/sh -c "/etc/s6-overlay/s6-rc.d/mysql-config/init"

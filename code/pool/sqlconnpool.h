@@ -16,6 +16,9 @@
 
 class SqlConnPool {
 public:
+    /* 单例模式，多线程环境下，确保只有一个实例，
+    * 直接通过类名调用该静态函数，获取唯一实例
+    */
     static SqlConnPool *Instance();
 
     MYSQL *GetConn();
@@ -36,6 +39,7 @@ private:
     int freeCount_;
 
     std::queue<MYSQL *> connQue_;
+    /* 互斥锁 */
     std::mutex mtx_;
     sem_t semId_;
 };
