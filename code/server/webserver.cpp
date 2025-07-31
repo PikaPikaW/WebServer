@@ -9,25 +9,27 @@
 using namespace std;
 
 WebServer::WebServer(
-            int port, int trigMode, int timeoutMS, bool OptLinger,
+            int port, int trigMode, int timeoutMS, bool OptLinger, char *sqlhost,
             int sqlPort, const char* sqlUser, const  char* sqlPwd,
             const char* dbName, int connPoolNum, int threadNum,
-            bool openLog, int logLevel, int logQueSize):
+            bool openLog, int logLevel, int logQueSize, char *srcDir_config):
             port_(port), openLinger_(OptLinger), timeoutMS_(timeoutMS), isClose_(false),
             timer_(new HeapTimer()), threadpool_(new ThreadPool(threadNum)), epoller_(new Epoller())
     {
-    srcDir_ = getcwd(nullptr, 256);
+    //srcDir_ = getcwd(nullptr, 256);
+    srcDir_ = (char *) malloc (256);
     assert(srcDir_);
+    strcpy(srcDir_, srcDir_config);
     strncat(srcDir_, "/resources/", 16);
     HttpConn::userCount = 0;
     HttpConn::srcDir = srcDir_;
-    SqlConnPool::Instance()->Init("localhost", sqlPort, sqlUser, sqlPwd, dbName, connPoolNum);
+    SqlConnPool::Instance()->Init(sqlhost, sqlPort, sqlUser, sqlPwd, dbName, connPoolNum);
 
     InitEventMode_(trigMode);
     if(!InitSocket_()) { isClose_ = true;}
 
     if(openLog) {
-        Log::Instance()->init(logLevel, "./log", ".log", logQueSize);
+        Log::Instance()->init(logLevel, "/app/webserver/log", ".log", logQueSize);
         if(isClose_) { LOG_ERROR("========== Server init error!=========="); }
         else {
             LOG_INFO("========== Server init ==========");

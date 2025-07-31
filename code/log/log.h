@@ -17,6 +17,11 @@
 #include "blockqueue.h"
 #include "../buffer/buffer.h"
 
+#define LOG_LEVEL_DEBUG 0
+#define LOG_LEVEL_INFO 1
+#define LOG_LEVEL_WARN 2
+#define LOG_LEVEL_ERROR 3
+
 class Log {
 public:
     void init(int level, const char* path = "./log", 

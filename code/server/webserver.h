@@ -26,10 +26,10 @@
 class WebServer {
 public:
     WebServer(
-        int port, int trigMode, int timeoutMS, bool OptLinger, 
+        int port, int trigMode, int timeoutMS, bool OptLinger, char *sqlhost,
         int sqlPort, const char* sqlUser, const  char* sqlPwd, 
         const char* dbName, int connPoolNum, int threadNum,
-        bool openLog, int logLevel, int logQueSize);
+        bool openLog, int logLevel, int logQueSize, char *srcDir_config);
 
     ~WebServer();
     void Start();
